@@ -6,7 +6,6 @@ Aplicação web full stack para organizar o rebanho e a rotina de uma propriedad
 
 **[Acessar demonstração](https://rancho-gestao-leiteira.pages.dev)** · [Documentação de operação](docs/OPERACAO.md)
 
-[![Testes do Rancho](https://github.com/souza1caue/rancho/actions/workflows/tests.yml/badge.svg)](https://github.com/souza1caue/rancho/actions/workflows/tests.yml)
 
 > Projeto em evolução — beta 0.3. A demonstração inicial utiliza animais e dados fictícios.
 
@@ -32,7 +31,7 @@ Aplicação web full stack para organizar o rebanho e a rotina de uma propriedad
 | Offline | Service Worker, Cache API, Web App Manifest e localStorage |
 | Autenticação | Web Crypto API, PBKDF2, sessões com cookies HttpOnly |
 | Testes | Python, pytest, testes HTTP, Node.js, SQLite em memória e jsdom |
-| Integração contínua | GitHub Actions, relatório JUnit |
+| Relatórios de testes | JUnit XML |
 | Hospedagem | Cloudflare Pages |
 
 ## Destaques técnicos
@@ -127,7 +126,7 @@ npm run test:js
 
 `npm test` executa JavaScript e pytest. O script encontra automaticamente `.venv` no Windows/Linux; sem ambiente virtual, utiliza o Python instalado. O relatório JUnit é salvo em `reports/pytest.xml`.
 
-O GitHub Actions executa build e as duas suítes a cada push em `main` e pull request, e disponibiliza o relatório do pytest como artefato. Esses testes verificam contratos HTTP e SQL em ambiente local; a instalação em navegadores e as particularidades do runtime Cloudflare exigem validação complementar.
+Os testes verificam contratos HTTP e SQL em ambiente local; a instalação em navegadores e as particularidades do runtime Cloudflare exigem validação complementar.
 
 ## Estado do projeto
 
