@@ -1,6 +1,6 @@
 # Rancho — Gestão leiteira · beta 0.3
 
-Sistema React/Vite instalável pelo navegador, hospedado em https://rancho-gestao-leiteira.pages.dev. Código privado: https://github.com/souza1caue/rancho.
+Sistema React/Vite instalável pelo navegador, hospedado em https://rancho-gestao-leiteira.pages.dev. Código público: https://github.com/souza1caue/rancho.
 
 ## Usar
 

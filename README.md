@@ -24,7 +24,7 @@ Aplicação web full stack para organizar o rebanho e a rotina de uma propriedad
 
 | Camada | Tecnologias |
 | --- | --- |
-| Interface | React 19, JavaScript, CSS responsivo, Lucide React |
+| Interface | React 19, JavaScript, Tailwind CSS 4, CSS responsivo, Lucide React |
 | Build | Vite 8 |
 | API | Cloudflare Pages Functions |
 | Banco de dados | Cloudflare D1 / SQLite |
