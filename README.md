@@ -2,11 +2,11 @@
 
 Beta local para apresentação comercial, criada com React e Vite. A fazenda e os animais iniciais são fictícios.
 
-## Executar
-
 ## Publicação
 
 Código-fonte: `https://github.com/souza1caue/rancho` (repositório privado).
+
+Endereço publicado: https://rancho-gestao-leiteira.pages.dev
 
 Hospedagem: Cloudflare Pages, projeto `rancho-gestao-leiteira`, branch de produção `main`. Publicação por upload direto da pasta `dist`; o push no GitHub, sozinho, não publica automaticamente.
 
@@ -25,6 +25,8 @@ npx wrangler@4.157.0 pages deploy dist --project-name rancho-gestao-leiteira --b
 ```
 
 O site hospedado continua usando armazenamento local: os registros do endereço localhost não são transferidos automaticamente para o novo domínio. Exporte um backup no endereço antigo e importe em Gestão → Configurações e backup no site publicado, caso queira levar os dados. Não há sincronização entre usuários ou dispositivos.
+
+## Executar localmente
 
 ```powershell
 npm install
