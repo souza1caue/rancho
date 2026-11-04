@@ -45,3 +45,22 @@
 .bottom-nav{background:#1A531A;border-color:#1A531A}.bottom-nav button{color:#fff}.bottom-nav button.active{background:#4CAF50;color:#fff}.bottom-nav button:hover{background:#3d8f42;color:#fff}.bottom-nav button:nth-child(3){background:#4CAF50;color:#fff}.bottom-nav button:nth-child(3).active,.bottom-nav button:nth-child(3):hover{background:#65bd67;color:#1A531A}.bottom-nav button svg{color:inherit}
 .dashboard-shell{color:#1C1C1C}.dashboard-shortcut{width:100%;min-height:104px;justify-content:flex-start;text-align:left;background:#fff;border:1px solid #e6ece5;border-radius:16px;padding:16px;box-shadow:0 2px 7px #1a531a0a;transition:transform .16s,border-color .16s,box-shadow .16s}.dashboard-shortcut:hover{transform:translateY(-2px);border-color:#b9d9bb;box-shadow:0 8px 22px #1a531a12}.dashboard-shortcut .shortcut-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:#eaf4e9;color:#1A531A;flex-shrink:0}.dashboard-shortcut .shortcut-copy{min-width:0;flex:1}.dashboard-shortcut .shortcut-copy strong{display:block;color:#1A531A;font-size:13px;font-weight:700}.dashboard-shortcut .shortcut-copy small{display:block;color:#707c70;font-size:10px;line-height:1.5;margin-top:4px}.dashboard-panel{border:1px solid #e5eae6;border-radius:18px;background:#fff;box-shadow:0 3px 12px #1a531a0a}.dashboard-task{display:flex;align-items:flex-start;gap:12px;width:100%;padding:15px 20px;text-align:left;border-top:1px solid #eff2ee;background:#fff;color:#1C1C1C}.dashboard-task:hover{background:#f7faf6}.dashboard-task strong{display:block;font-size:12px;color:#284b2b}.dashboard-task small{display:block;margin-top:5px;font-size:10px;color:#788578}.dashboard-check{width:22px;height:22px;min-width:22px;border:1px solid #bdd3ba;border-radius:50%;background:#fff;color:#1A531A}
 .dashboard-record-cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#4CAF50;color:#fff;border:0;border-radius:10px;padding:11px 15px;font-size:12px;font-weight:700;box-shadow:0 3px 8px #4caf5033}.dashboard-record-cta:hover{background:#1A531A;color:#fff}.dashboard-health-link,.dashboard-more-link{display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px;background:#fff;color:#1A531A;border:0;border-top:1px solid #eef1ed;padding:14px 0 0;margin-top:18px;font-size:12px;font-weight:700}.dashboard-health-link:hover,.dashboard-more-link:hover{color:#4CAF50}.dashboard-more-link{justify-content:center;background:#fff;border-top:1px solid #eef1ed;padding:13px;margin-top:0}.dashboard-health-link svg,.dashboard-more-link svg{color:inherit}
+
+/* Layout responsivo da tela inicial e navegação para telas estreitas */
+@media(max-width:680px){
+  html,body,#root{width:100%;max-width:100%;overflow-x:hidden}
+  .workspace,main,.dashboard-shell,.dashboard-shell>div,.dashboard-shell article,.dashboard-shell section{width:100%;min-width:0}
+  main{max-width:100%;padding:24px 16px 120px}
+  .dashboard-shell>div.grid{display:grid;width:100%;grid-template-columns:minmax(0,1fr)}
+  .dashboard-shell>div.grid>article,.dashboard-panel{width:100%;max-width:100%;min-width:0}
+  .dashboard-panel>div,.dashboard-panel .relative+div{min-width:0}
+  .dashboard-panel .relative+div{overflow-wrap:anywhere}
+  .dashboard-shell svg{max-width:100%}
+  .bottom-nav{left:10px;right:10px;transform:none;width:auto;max-width:none;grid-template-columns:repeat(5,minmax(0,1fr));box-sizing:border-box}
+  .bottom-nav button{min-width:0;padding-right:2px;padding-left:2px;font-size:9px;white-space:nowrap}
+  .header-right{min-width:0;gap:6px}
+  .connection-state{font-size:0;gap:0;flex:none}
+  .connection-state i{width:7px;height:7px}
+  .install-header{display:grid;place-items:center;width:36px;height:36px;min-height:36px;padding:8px;font-size:0}
+  .install-header svg{display:block;width:18px;height:18px}
+}
