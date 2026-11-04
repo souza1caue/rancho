@@ -1,4 +1,4 @@
-# Origem — Gestão leiteira (beta)
+# Rancho — Gestão leiteira (beta)
 
 Beta local para apresentação comercial, criada com React e Vite. A fazenda e os animais iniciais são fictícios.
 
