@@ -20,7 +20,7 @@ function milkPath(series){
 
 function MilkTrend({series}){
   const {line,area,points}=milkPath(series);
-  return <div className="mt-5">
+  return <div className="milk-trend mt-4">
     <svg viewBox="0 0 302 124" className="h-36 w-full overflow-visible" role="img" aria-label="Produção de leite nos últimos sete dias">
       <defs><linearGradient id="milk-line" x1="0" x2="1"><stop offset="0%" stopColor="#4CAF50"/><stop offset="100%" stopColor="#ADD8E6"/></linearGradient><linearGradient id="milk-area" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#4CAF50" stopOpacity=".2"/><stop offset="100%" stopColor="#ADD8E6" stopOpacity=".02"/></linearGradient></defs>
       {[32,72,112].map(y=><line key={y} x1="0" x2="302" y1={y} y2={y} stroke="#e9efea" strokeDasharray="3 5"/>)}
@@ -37,13 +37,13 @@ function HealthCoverage({animals,health,onOpen}){
   const covered=eligible.filter(animal=>health.some(record=>record.date>=cutoffIso&&(record.animalId===animal.id||record.animal===animalLabel(animal)))).length;
   const progress=eligible.length?Math.round(covered/eligible.length*100):0;
   const circumference=2*Math.PI*43;
-  return <article className="dashboard-panel p-5 sm:p-6">
+  return <article className="dashboard-panel dashboard-health-panel p-5 sm:p-6">
     <div className="flex items-start justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-gray-500">Acompanhamento</p><h2 className="mt-1 text-xl font-bold text-forest">Saúde do rebanho</h2></div><span className="grid h-10 w-10 place-items-center rounded-xl bg-sky/40 text-forest"><HeartPulse size={20}/></span></div>
     <div className="mt-5 flex items-center gap-5">
-      <div className="relative h-28 w-28 shrink-0"><svg viewBox="0 0 100 100" className="h-full w-full -rotate-90" role="img" aria-label={`${progress}% de cobertura de registros sanitários`}><circle cx="50" cy="50" r="43" fill="none" stroke="#e8eee8" strokeWidth="9"/><circle cx="50" cy="50" r="43" fill="none" stroke="#4CAF50" strokeWidth="9" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference*(1-progress/100)}/></svg><div className="absolute inset-0 grid place-items-center text-2xl font-extrabold tracking-tight text-forest font-metric">{progress}%</div></div>
+      <div className="dashboard-health-meter relative h-28 w-28 shrink-0"><svg viewBox="0 0 100 100" className="h-full w-full -rotate-90" role="img" aria-label={`${progress}% de cobertura de registros sanitários`}><circle cx="50" cy="50" r="43" fill="none" stroke="#e8eee8" strokeWidth="9"/><circle cx="50" cy="50" r="43" fill="none" stroke="#4CAF50" strokeWidth="9" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference*(1-progress/100)}/></svg><div className="absolute inset-0 grid place-items-center text-2xl font-extrabold tracking-tight text-forest font-metric">{progress}%</div></div>
       <div><p className="text-sm font-semibold text-ink">{covered} de {eligible.length} animais</p><p className="mt-1 text-xs leading-relaxed text-gray-600">com algum registro sanitário nos últimos 12 meses.</p><p className="mt-2 text-[10px] leading-relaxed text-gray-500">Indicador de registros, não substitui avaliação veterinária.</p></div>
     </div>
-    <button className="dashboard-health-link" onClick={onOpen}>Ver registros de saúde <ChevronRight size={16}/></button>
+    <button className="dashboard-health-link" onClick={onOpen}>Abrir saúde dos animais <ChevronRight size={16}/></button>
   </article>;
 }
 
@@ -63,22 +63,22 @@ export default function DashboardOverview({db,today,total,onNavigate,onRecord,on
   ];
   return <section className="dashboard-shell" aria-label="Painel principal do Rancho">
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-      <div><p className="text-sm font-semibold text-forest">Resumo da fazenda</p><p className="mt-1 text-xs text-gray-500">Leite, rebanho e cuidados em um só lugar.</p></div>
+      <div><p className="text-sm font-semibold text-forest">Resumo de hoje</p><p className="mt-1 text-xs text-gray-500">Produção, saúde e cuidados do rebanho.</p></div>
       <span className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-white px-3 py-2 text-xs font-semibold text-forest shadow-sm"><span className="h-2 w-2 rounded-full bg-field"/>Fazenda ativa</span>
     </div>
 
-    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.55fr_1fr]">
-      <article className="dashboard-panel overflow-hidden p-5 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-gray-500">Produção de hoje</p><h2 className="mt-1 text-xl font-bold text-forest">Volume diário de leite</h2><p className="mt-1 text-xs text-gray-500">Soma das ordenhas registradas por animal.</p></div><span className="grid h-10 w-10 place-items-center rounded-xl bg-green-50 text-field"><Milk size={21}/></span></div>
-        <div className="mt-5 flex flex-wrap items-end justify-between gap-3"><div><strong className="font-metric text-4xl font-extrabold tracking-tight text-forest">{number(total)}<span className="ml-2 text-xl font-bold">L</span></strong><p className="mt-1 text-xs text-gray-500">{db.milk.filter(record=>record.date===today).length} registros de ordenha hoje</p></div>{change!==null&&<span className={`mb-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${change>=0?'bg-green-50 text-forest':'bg-amber-50 text-amber-800'}`}>{change>=0?<TrendingUp size={14}/>:<TrendingDown size={14}/>} {Math.abs(change)}% vs. ontem</span>}</div>
+    <div className="dashboard-summary-grid">
+      <article className="dashboard-panel dashboard-milk-panel overflow-hidden p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-gray-500">Leite de hoje</p><h2 className="mt-1 text-xl font-bold text-forest">Produção de leite</h2><p className="mt-1 text-xs text-gray-500">Total registrado por animal.</p></div><span className="grid h-10 w-10 place-items-center rounded-xl bg-green-50 text-field"><Milk size={21}/></span></div>
+        <div className="dashboard-milk-summary mt-5 flex flex-wrap items-end justify-between gap-3"><div><strong className="font-metric text-4xl font-extrabold tracking-tight text-forest">{number(total)}<span className="ml-2 text-xl font-bold">L</span></strong><p className="mt-1 text-xs text-gray-500">{db.milk.filter(record=>record.date===today).length} ordenhas registradas</p></div>{change!==null&&<span className={`mb-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${change>=0?'bg-green-50 text-forest':'bg-amber-50 text-amber-800'}`}>{change>=0?<TrendingUp size={14}/>:<TrendingDown size={14}/>} {Math.abs(change)}% vs. ontem</span>}</div>
         <MilkTrend series={series}/>
         <button className="dashboard-record-cta" onClick={onRecord}><Milk size={16}/>Registrar ordenha <ArrowRight size={15}/></button>
       </article>
       <HealthCoverage animals={animals} health={db.health} onOpen={()=>onNavigate('Sanidade')}/>
     </div>
 
-    <section className="mt-6" aria-labelledby="shortcut-title"><div className="mb-3 flex items-end justify-between"><div><h2 id="shortcut-title" className="text-xl font-bold text-forest">Acesso rápido</h2><p className="mt-1 text-xs text-gray-500">As áreas mais usadas no dia a dia.</p></div><Activity size={19} className="text-field"/></div><div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">{shortcuts.map(item=><button key={item.page} className="dashboard-shortcut" onClick={()=>onNavigate(item.page)}><span className="shortcut-icon">{item.icon}</span><span className="shortcut-copy"><strong>{item.title}</strong><small>{item.detail}</small></span><ChevronRight size={17} className="text-gray-400"/></button>)}</div></section>
+    <section className="dashboard-shortcuts mt-6" aria-labelledby="shortcut-title"><div className="mb-3 flex items-end justify-between"><div><h2 id="shortcut-title" className="text-xl font-bold text-forest">Acesso rápido</h2><p className="mt-1 text-xs text-gray-500">Principais áreas da fazenda.</p></div><Activity size={19} className="text-field"/></div><div className="dashboard-shortcuts-grid">{shortcuts.map(item=><button key={item.page} className="dashboard-shortcut" onClick={()=>onNavigate(item.page)}><span className="shortcut-icon">{item.icon}</span><span className="shortcut-copy"><strong>{item.title}</strong><small>{item.detail}</small></span><ChevronRight size={17} className="text-gray-400"/></button>)}</div></section>
 
-    <section className="dashboard-panel mt-6 overflow-hidden" aria-labelledby="care-title"><div className="flex items-center justify-between gap-4 p-5 sm:px-6"><div><h2 id="care-title" className="text-lg font-bold text-forest">Cuidados próximos</h2><p className="mt-1 text-xs text-gray-500">Tarefas pendentes da fazenda.</p></div><span className="rounded-full bg-wheat/30 px-3 py-1 text-xs font-bold text-forest">{db.tasks.filter(task=>!task.done).length}</span></div>{tasks.length?tasks.map(task=><div className="dashboard-task" key={task.id}><button className="dashboard-check" aria-label={'Concluir '+task.title} onClick={()=>onCompleteTask(task.id)}><Check size={13}/></button><span className="min-w-0 flex-1"><strong>{task.title}</strong><small>{[task.animal,task.detail,task.type,localDate(task.date)].filter(Boolean).join(' · ')}</small></span><CalendarDays size={16} className="shrink-0 text-gray-400"/></div>):<div className="px-6 pb-6 text-sm text-gray-500">Nenhum cuidado pendente por enquanto.</div>}<button className="dashboard-more-link" onClick={()=>onNavigate('Agenda')}>Abrir agenda <ArrowRight size={15}/></button></section>
+    <section className="dashboard-panel mt-6 overflow-hidden" aria-labelledby="care-title"><div className="flex items-center justify-between gap-4 p-5 sm:px-6"><div><h2 id="care-title" className="text-lg font-bold text-forest">Próximos cuidados</h2><p className="mt-1 text-xs text-gray-500">Tarefas que precisam de atenção.</p></div><span className="rounded-full bg-wheat/30 px-3 py-1 text-xs font-bold text-forest">{db.tasks.filter(task=>!task.done).length}</span></div>{tasks.length?tasks.map(task=><div className="dashboard-task" key={task.id}><button className="dashboard-check" aria-label={'Concluir '+task.title} onClick={()=>onCompleteTask(task.id)}><Check size={13}/></button><span className="min-w-0 flex-1"><strong>{task.title}</strong><small>{[task.animal,task.detail,task.type,localDate(task.date)].filter(Boolean).join(' · ')}</small></span><CalendarDays size={16} className="shrink-0 text-gray-400"/></div>):<div className="px-6 pb-6 text-sm text-gray-500">Nenhum cuidado pendente por enquanto.</div>}<button className="dashboard-more-link" onClick={()=>onNavigate('Agenda')}>Abrir agenda <ArrowRight size={15}/></button></section>
   </section>;
 }
