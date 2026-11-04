@@ -1,76 +1,97 @@
-# Rancho — Gestão leiteira · beta 0.3
+# Rancho
 
-Sistema React/Vite instalável pelo navegador, hospedado em https://rancho-gestao-leiteira.pages.dev. Código privado: https://github.com/souza1caue/rancho.
+**Gestão leiteira do nascimento à produção.**
 
-## Usar
+Aplicação web full stack para organizar o rebanho e a rotina de uma propriedade leiteira. Reúne cadastro individual de animais, produção de leite, reprodução, cuidados sanitários e acompanhamento financeiro em uma interface responsiva e instalável como PWA.
 
-A navegação inferior reúne Início, Animais, Produção, Cuidados e Gestão. As áreas de atividade possuem Registrar e Histórico, com filtros, agrupamento por dia/animal/tipo/categoria e exportação CSV.
+**[Acessar demonstração](https://rancho-gestao-leiteira.pages.dev)** · [Documentação de operação](docs/OPERACAO.md)
 
-- Animais: cadastro desde o nascimento, filiação, pesagens, categorias e ficha individual. Ciclos produtivo e reprodutivo são separados, permitindo gestação e lactação simultâneas.
-- Produção: uma única tela de ordenha lista as vacas em lactação. Campos vazios não criam medição; zero é uma medição de zero litros. Um animal não recebe dois lançamentos da mesma ordenha/data; corrija o registro no Histórico. Também há alimentação por lote.
-- Reprodução: cio, cobertura/inseminação, diagnóstico, secagem, parto e aborto. Um parto pode cadastrar uma cria e vinculá-la à mãe na mesma operação. Em parto gemelar, cadastre a segunda cria separadamente e vincule a mesma mãe.
-- Cuidados: agenda, sanidade e calendário de vacinas. Protocolos são cadastrados por responsável/UF, com idade inicial, sexo/categoria, reforços e revacinação. Apenas protocolos confirmados como validados geram lembretes. Não existe protocolo universal ativado automaticamente.
-- Gestão: financeiro, relatórios por período, conta, sincronização, backups e instalação do aplicativo.
-- Correções: no detalhe de um registro do Histórico, Corrigir registro mantém o identificador, animal e tipo e guarda a versão anterior com data e motivo. Para mudar a situação de um ciclo, use a ficha do animal.
+> Projeto em evolução — beta 0.3. A demonstração inicial utiliza animais e dados fictícios.
 
-## Conta e sincronização
+## Funcionalidades
 
-Sem login, o modo local mantém os dados antigos do navegador, inclusive a demonstração fictícia. Nenhum registro local é enviado automaticamente para uma conta nova.
+- **Rebanho:** identificação, filiação, pesagens e histórico de cada animal desde o nascimento.
+- **Produção:** lançamento de ordenha de vários animais em uma única tela, com identificação do destino do leite.
+- **Reprodução:** acompanhamento de gestação e lactação simultâneas, previsões de manejo e parto vinculado ao cadastro da cria.
+- **Cuidados:** agenda, tratamentos e calendário de vacinação configurável por protocolo.
+- **Gestão:** receitas, despesas, relatórios por período e exportação de dados em CSV e JSON.
+- **Histórico:** filtros, agrupamentos e correções com justificativa e preservação da versão anterior.
+- **Conta:** autenticação, recuperação de acesso por código e isolamento dos dados entre contas.
+- **Mobilidade:** instalação pelo navegador, uso offline e sincronização entre dispositivos.
 
-Em Gestão → Configurações e backup, crie uma conta com usuário e senha (mínimo 12 caracteres). Guarde o código de recuperação, mostrado na criação: ele permite redefinir a senha sem depender de email. O código é substituído quando usado. Entre na mesma conta nos demais aparelhos.
+## Tecnologias
 
-Cada conta representa um conjunto independente de dados. Esta beta não possui convites, funcionários ou permissões por função. Não compartilhe credenciais para simular contas individuais.
+| Camada | Tecnologias |
+| --- | --- |
+| Interface | React 19, JavaScript, CSS responsivo, Lucide React |
+| Build | Vite 8 |
+| API | Cloudflare Pages Functions |
+| Banco de dados | Cloudflare D1 / SQLite |
+| Offline | Service Worker, Cache API, Web App Manifest e localStorage |
+| Autenticação | Web Crypto API, PBKDF2, sessões com cookies HttpOnly |
+| Testes | Node.js, assert, SQLite em memória e jsdom |
+| Hospedagem | Cloudflare Pages |
 
-Depois de entrar, Importar dados deste aparelho combina os dados do modo local com a conta, mediante confirmação. Dados fictícios ainda existentes também são importados; confira o cadastro antes. Conflitos de identificadores ou brincos são recusados nessa importação.
+## Destaques técnicos
 
-As alterações são salvas localmente primeiro. Quando conectado, o aplicativo busca a versão remota e faz mesclagem por registro com uma base comum. Inclusões independentes são combinadas. Alterações diferentes no mesmo registro exigem escolha explícita entre aparelho e nuvem. O servidor usa revisão otimista para impedir sobrescritas concorrentes. A fila e a base de mesclagem são preservadas no armazenamento por conta. A consulta remota ocorre ao entrar, reconectar e periodicamente enquanto o app está aberto.
+### Sincronização com suporte offline
 
-Sessões usam cookie HttpOnly, Secure e SameSite=Strict. Senhas são protegidas por PBKDF2-SHA256 com salt e pepper do servidor. Há limitação de tentativas de autenticação e recuperação por IP. A chave AUTH_PEPPER está no Cloudflare, fora do Git. Não substitua essa chave em uma instalação existente: isso invalida a verificação das senhas existentes.
+As alterações são persistidas no aparelho antes do envio. Ao reconectar, a aplicação compara a base sincronizada com as versões local e remota para combinar alterações independentes. Conflitos no mesmo registro exigem resolução explícita e permanecem pendentes mesmo após fechar e reabrir o aplicativo.
 
-A sessão dura 30 dias. Se expirar, os registros locais são preservados e o usuário entra novamente para sincronizar. Ao sair, o modo local é reaberto; os dados em cache da conta continuam neste aparelho para o próximo acesso. Proteja dispositivos compartilhados. O armazenamento local não é criptografado.
+### Consistência de dados
 
-## Backups
+A API utiliza controle de revisão para evitar sobrescritas concorrentes. Cada gravação sincronizada gera um backup na mesma transação do banco. A sincronização também identifica lançamentos concorrentes da mesma ordenha para evitar duplicidade.
 
-Cada sincronização que altera dados cria um snapshot na mesma transação da gravação. São mantidas as últimas 30 versões por conta. Em Configurações, Ver backups automáticos permite baixar as versões como JSON; para restaurar, importe o JSON com a confirmação de substituição. Faça também backups manuais fora do dispositivo. A beta limita cada documento sincronizado a 1,5 MB e cada coleção a 20 mil registros.
+### Modelagem do ciclo animal
 
-## Instalação e uso offline
+A fase produtiva é separada da situação reprodutiva. Eventos confirmados atualizam o ciclo, enquanto previsões geram lembretes sem registrar automaticamente acontecimentos reais.
 
-Em Configurações, o botão de instalação aparece quando o navegador oferece a instalação. Android/Chrome: menu → Instalar aplicativo. iPhone/iPad: Safari → Compartilhar → Adicionar à Tela de Início. Computador: instalação pelo Chrome/Edge.
+### Experiência de uso
 
-Abra conectado e aguarde Preparado para uso sem internet. Depois, a interface e os registros locais funcionam sem rede. Alterações da conta aguardam a próxima sincronização. Instalar, sozinho, não cria uma conta. Fontes externas podem usar a fonte alternativa do dispositivo. Não limpe o armazenamento antes de sincronizar e exportar um backup.
+Navegação inferior dividida em cinco áreas, formulários voltados às tarefas da rotina e históricos agrupados por dia, animal, tipo ou categoria. As atualizações do PWA são oferecidas com confirmação para preservar o trabalho em andamento.
 
-Atualizações são oferecidas por aviso, com ação bloqueada enquanto uma ficha ou formulário estiver aberto. O cache de interface é versionado; a API nunca é armazenada pelo service worker. A atualização não apaga os dados do aplicativo.
+## Executar localmente
 
-## Desenvolvimento e testes
+Requisitos: Node.js 24 e npm.
 
-```powershell
+```bash
+git clone https://github.com/souza1caue/rancho.git
+cd rancho
 npm ci
+npm run dev
+```
+
+Para gerar a versão de produção, executar os testes e visualizar o PWA:
+
+```bash
 npm run build
 npm test
 npm run preview
 ```
 
-O preview estático permite testar a interface e o PWA. Para testar a API, use Wrangler Pages dev com D1 local e um AUTH_PEPPER de teste, diferente da chave de produção. A migração SQL está em migrations/0001_cloud.sql. Os testes de API usam SQLite em memória, sem dados reais.
+O preview estático executa a interface. A API exige configuração do Cloudflare D1 e da chave de autenticação; consulte a [documentação de operação](docs/OPERACAO.md).
 
-Os testes abrangem ciclos, histórico, ícones/manifesto, cache offline, contas e sessões, recuperação, isolamento, CAS, backups, mesclagem/conflitos, ordenha em lote, parto vinculado, correções, calendário e fluxos da interface. A instalação visual em dispositivos e um teste acompanhado com o cliente continuam necessários antes da operação real.
+## Estrutura
 
-## Publicação
-
-Cloudflare Pages: rancho-gestao-leiteira, branch main. D1: rancho-db, binding DB. Aplicar novas migrações antes de publicar funções que dependam delas. Não recrie o banco nem a chave de autenticação ao atualizar.
-
-```powershell
-npm run build
-npm test
-git add .
-git commit -m "Atualiza Rancho"
-git push origin main
-npx wrangler@4.157.0 pages deploy dist --project-name rancho-gestao-leiteira --branch main
+```text
+src/          Interface, componentes e regras do domínio
+functions/    API e autenticação no Cloudflare
+shared/       Validação e mesclagem de dados
+migrations/   Estrutura do banco D1 / SQLite
+public/       Manifesto, ícones e configuração do PWA
+scripts/      Geração de ícones e cache offline
+tests/        Testes de domínio, API, sincronização e interface
+docs/         Documentação de operação e publicação
 ```
 
-O deploy compila a pasta functions e envia a interface dist. O push no GitHub sozinho não publica automaticamente. Os registros antigos do localhost pertencem a outro domínio: use exportação/importação para transportá-los.
+## Validação
 
-## Referências de UX e manejo
+A suíte automatizada cobre ciclos reprodutivos, lançamentos de produção, histórico, autenticação, recuperação, isolamento entre contas, backups, sincronização, conflitos, uso offline e instalação simulada. Cadastro, login, gravação no D1 e controle de revisão também foram verificados no ambiente publicado.
 
-Composição visual baseada na biblioteca local C:/Projetos_pessoais/ui-references e nos padrões de dashboard/cards/tabelas do shadcn/ui, commit 4aaea19d9cff3e0908e12a8c1d504b8c5ec34610. CSS e silhuetas próprias; ícones lucide-react. Os ícones instaláveis podem ser regenerados com scripts/generate-icons.ps1 no Windows.
+## Estado do projeto
 
-Intervalos iniciais do ciclo são referências editáveis, não prescrições: gestação 280 dias, período seco 60, pré-parto 21, espera pós-parto 45 e retorno para diagnóstico 30. Devem ser validados pelo veterinário. Previsões não confirmam gestação, parto, secagem ou liberação reprodutiva. Tratamentos não bloqueiam automaticamente a ordenha. Não há formulação de dieta ou integração contábil. Relatórios usam medições reais e não estimam dias sem medição. Custos de alimentação não são lançados novamente no financeiro automaticamente.
+A beta possui um conjunto de dados independente por conta. Convites e permissões por função ainda não estão implementados. A instalação em dispositivos e a rotina com usuários reais precisam de validação acompanhada. Os protocolos sanitários devem ser definidos pelo responsável técnico da propriedade.
+
+## Referências de interface
+
+Composição inspirada nos padrões de dashboard, formulários e tabelas do [shadcn/ui](https://github.com/shadcn-ui/ui), com CSS e silhuetas de animais próprios. Ícones: [Lucide](https://github.com/lucide-icons/lucide).
