@@ -29,6 +29,12 @@ const reproductiveEvent=async(type,date,extra={})=>{click('Registrar');await tic
 await reproductiveEvent('Parto','2026-01-01');await reproductiveEvent('Inseminação artificial','2026-03-01');await reproductiveEvent('Diagnóstico de gestação','2026-04-01',{result:'Positivo'});
 click('Animais');await tick();w.document.querySelector('tbody tr').click();await tick();assert.match(w.document.querySelector('.cycle-status').textContent,/Lactação/);assert.match(w.document.querySelector('.cycle-status').textContent,/Gestante/);assert.match(w.document.querySelector('.cycle-panel').textContent,/Parto previsto/);assert.ok(!w.document.querySelector('.cycle-panel').textContent.includes('NaN'));
 const snapshot=w.document.querySelector('.cycle-panel form');snapshot.querySelector('[name="productive"]').value='Seca';snapshot.querySelector('[name="dryDate"]').value='2026-10-10';snapshot.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await tick();assert.match(w.document.querySelector('.cycle-status').textContent,/Seca/);assert.match(w.document.querySelector('.cycle-status').textContent,/Gestante/);
-console.log('OK: navegação, cadastro, histórico, exportação, eventos reprodutivos e ciclo individual com gestação e lactação simultâneas.');dom.window.close();
+w.document.querySelector('[aria-label="Fechar"]').click();await tick();
+const preserved=w.localStorage.getItem('origem-beta');let installPrompts=0;
+const installEvent=new w.Event('beforeinstallprompt',{cancelable:true});installEvent.prompt=async()=>{installPrompts++};installEvent.userChoice=Promise.resolve({outcome:'accepted'});w.dispatchEvent(installEvent);await tick();
+click('Instalar app');await tick();click('Instalar aplicativo');await tick();assert.equal(installPrompts,1);
+w.dispatchEvent(new w.Event('appinstalled'));await tick();assert.match(w.document.querySelector('.pwa-panel').textContent,/Aberto como aplicativo/);
+Object.defineProperty(w.navigator,'onLine',{value:false,configurable:true});w.dispatchEvent(new w.Event('offline'));await tick();assert.match(w.document.querySelector('.pwa-notices').textContent,/sem internet/);assert.equal(w.localStorage.getItem('origem-beta'),preserved);
+console.log('OK: navegação, cadastros, histórico, ciclos, instalação simulada, estado offline e preservação dos registros.');dom.window.close();
 
 

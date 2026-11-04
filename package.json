@@ -1,12 +1,13 @@
 {
   "name": "origem-leite",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1"
+    "build": "vite build && node scripts/build-pwa.mjs",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node tests/animal-cycle.mjs && node tests/history-groups.mjs && node tests/pwa.mjs && node tests/smoke.mjs"
   },
   "keywords": [],
   "type": "module",

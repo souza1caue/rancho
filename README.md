@@ -4,6 +4,18 @@ Beta local para apresentação comercial, criada com React e Vite. A fazenda e o
 
 ## Publicação
 
+### Versão 0.2 — aplicativo instalável
+
+O Rancho possui manifesto, ícones para Android/iOS, modo standalone e service worker com cache da interface. Em Gestão → Configurações, a opção de instalação aparece nos navegadores que fornecem o evento de instalação; nos demais são exibidas instruções para instalação pelo menu. No iPhone/iPad, use Safari → Compartilhar → Adicionar à Tela de Início.
+
+Para trabalhar offline, abra o endereço publicado com internet e aguarde “Preparado para uso sem internet”. A interface, os arquivos JavaScript, os ícones e os dados locais ficam disponíveis para as próximas aberturas sem rede. Fontes externas podem usar a fonte alternativa do dispositivo. O primeiro acesso precisa de internet e a disponibilidade depende da preservação do armazenamento/cache pelo navegador.
+
+Atualizações são oferecidas por aviso; o usuário escolhe Atualizar agora após salvar suas alterações. A ação fica desabilitada com ficha/formulário aberto. O cache é versionado e não apaga localStorage, registros ou backups. Uma versão anterior da interface é mantida para abas abertas.
+
+A instalação não cria sincronização ou backup em nuvem. O aplicativo pode ter armazenamento separado em alguns dispositivos; confira os dados e use exportação/importação de backup se necessário. Não limpe dados do navegador/aplicativo sem antes exportar o backup.
+
+`npm run build` gera a interface e o service worker; `npm test` verifica os ciclos, históricos, manifesto, ícones, cache offline e fluxos da aplicação. O modo de desenvolvimento não registra o service worker; para testar a instalação localmente, use `npm run build` e `npm run preview`. Os ícones podem ser regenerados no Windows com `powershell -File scripts/generate-icons.ps1`.
+
 Código-fonte: `https://github.com/souza1caue/rancho` (repositório privado).
 
 Endereço publicado: https://rancho-gestao-leiteira.pages.dev

@@ -1,0 +1,17 @@
+{
+  "id": "/",
+  "name": "Rancho — Gestão leiteira",
+  "short_name": "Rancho",
+  "description": "Rebanho, produção e cuidados da fazenda em um só lugar.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f8fa",
+  "theme_color": "#204d3c",
+  "icons": [
+    {"src":"/icons/rancho-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"/icons/rancho-512.png","sizes":"512x512","type":"image/png","purpose":"any"},
+    {"src":"/icons/rancho-maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
+  ]
+}
