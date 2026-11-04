@@ -5,6 +5,9 @@ const random=()=>hex(crypto.getRandomValues(new Uint8Array(32)));
 const hash=async value=>hex(await crypto.subtle.digest('SHA-256',enc.encode(value)));
 const json=(value,status=200,headers={})=>new Response(JSON.stringify(value),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
 const cookie=(token,maxAge=2592000)=>`rancho_session=${token}; Path=/api; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAge}`;
+function parseObject(text){
+  try{const value=JSON.parse(text);return value&&typeof value==='object'&&!Array.isArray(value)?value:null}catch{return null}
+}
 async function passwordHash(password,salt,pepper){
   const key=await crypto.subtle.importKey('raw',enc.encode(pepper),{name:'HMAC',hash:'SHA-256'},false,['sign']);
   const hardened=await crypto.subtle.sign('HMAC',key,enc.encode(password));
@@ -34,7 +37,8 @@ export async function onRequest({request,env,waitUntil}){
       if(await limited(request,env.DB))return json({error:'Muitas tentativas. Aguarde 10 minutos.'},429);
       if(Number(request.headers.get('Content-Length'))>10000)return json({error:'Pedido muito grande.'},413);
       const raw=await request.text();if(raw.length>10000)return json({error:'Pedido muito grande.'},413);
-      const body=JSON.parse(raw),username=String(body.username||'').trim().toLowerCase(),password=String(body.password||'');
+      const body=parseObject(raw);if(!body)return json({error:'Envie um objeto JSON válido.'},400);
+      const username=String(body.username||'').trim().toLowerCase(),password=String(body.password||'');
       if(!/^[a-z0-9_.-]{3,50}$/.test(username))return json({error:'Use um usuário com 3 a 50 letras sem acentos, números, ponto ou traço.'},400);
       if(path!=='login'&&(password.length<12||password.length>200))return json({error:'Use uma senha com pelo menos 12 caracteres (máximo 200).'},400);
       if(password.length>200)return json({error:'Credenciais inválidas.'},400);
@@ -70,7 +74,7 @@ export async function onRequest({request,env,waitUntil}){
     if(path==='data'&&request.method==='GET'){const row=await env.DB.prepare('SELECT document,revision,updated_at FROM farms WHERE account_id=?').bind(a.id).first();return json({data:normalize(JSON.parse(row.document)),revision:row.revision,updatedAt:row.updated_at})}
     if(path==='data'&&request.method==='POST'){
       const text=await request.text();if(text.length>1500000)return json({error:'Limite desta beta: 1,5 MB de registros por conta.'},413);
-      const body=JSON.parse(text);if(!validateData(body.data)||!Number.isInteger(body.revision)||body.revision<0)return json({error:'Registros inválidos.'},400);
+      const body=parseObject(text);if(!body||!validateData(body.data)||!Number.isInteger(body.revision)||body.revision<0)return json({error:'Registros inválidos.'},400);
       const content=JSON.stringify(body.data),time=new Date().toISOString(),writeId=crypto.randomUUID();
       const result=await env.DB.batch([
         env.DB.prepare('UPDATE farms SET document=?,revision=revision+1,write_id=?,updated_at=? WHERE account_id=? AND revision=? RETURNING revision').bind(content,writeId,time,a.id,body.revision),

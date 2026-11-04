@@ -7,7 +7,10 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build && node scripts/build-pwa.mjs",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "node tests/animal-cycle.mjs && node tests/history-groups.mjs && node tests/pwa.mjs && node tests/cloud-data.mjs && node tests/api.mjs && node tests/smoke.mjs && node tests/cloud-ui.mjs"
+    "test": "npm run test:js && npm run test:python",
+    "test:js": "node tests/animal-cycle.mjs && node tests/history-groups.mjs && node tests/pwa.mjs && node tests/cloud-data.mjs && node tests/api.mjs && node tests/smoke.mjs && node tests/cloud-ui.mjs",
+    "test:python": "node scripts/test-python.mjs",
+    "test:all": "npm run test:js && npm run test:python"
   },
   "keywords": [],
   "type": "module",

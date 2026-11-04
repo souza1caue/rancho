@@ -43,6 +43,8 @@ Atualizações são oferecidas por aviso, com ação bloqueada enquanto uma fich
 
 ## Desenvolvimento e testes
 
+Além de Node.js 24 e npm, os testes requerem Python 3.11+. Prepare `.venv` com `python -m venv .venv` e instale `requirements-dev.txt` com o Python desse ambiente. O script npm encontra esse interpretador automaticamente, sem ativação manual. Consulte o README para os comandos de Windows e Linux.
+
 ```powershell
 npm ci
 npm run build
@@ -51,6 +53,8 @@ npm run preview
 ```
 
 O preview estático permite testar a interface e o PWA. Para testar a API, use Wrangler Pages dev com D1 local e um AUTH_PEPPER de teste, diferente da chave de produção. A migração SQL está em migrations/0001_cloud.sql. Os testes de API usam SQLite em memória, sem dados reais.
+
+`npm test` executa as suítes JavaScript e Python/pytest. `npm run test:python` inicia servidores de teste em portas locais dinâmicas e usa o handler real da API com a migração SQLite em memória. Cada caso possui dados e processo isolados, sem acesso ao D1 remoto. `npm run test:python -- -m auth -v` filtra autenticação; os marcadores `sync` e `backup` selecionam sincronização e snapshots. O relatório está em `reports/pytest.xml`; os ambientes e relatórios não são versionados. O GitHub Actions executa build e as duas suítes em pushes de main e pull requests.
 
 Os testes abrangem ciclos, histórico, ícones/manifesto, cache offline, contas e sessões, recuperação, isolamento, CAS, backups, mesclagem/conflitos, ordenha em lote, parto vinculado, correções, calendário e fluxos da interface. A instalação visual em dispositivos e um teste acompanhado com o cliente continuam necessários antes da operação real.
 

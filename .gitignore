@@ -8,3 +8,7 @@ dist/
 .dev.vars.*
 .wrangler/
 .DS_Store
+.venv/
+__pycache__/
+.pytest_cache/
+reports/

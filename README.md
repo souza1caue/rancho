@@ -6,6 +6,8 @@ Aplicação web full stack para organizar o rebanho e a rotina de uma propriedad
 
 **[Acessar demonstração](https://rancho-gestao-leiteira.pages.dev)** · [Documentação de operação](docs/OPERACAO.md)
 
+[![Testes do Rancho](https://github.com/souza1caue/rancho/actions/workflows/tests.yml/badge.svg)](https://github.com/souza1caue/rancho/actions/workflows/tests.yml)
+
 > Projeto em evolução — beta 0.3. A demonstração inicial utiliza animais e dados fictícios.
 
 ## Funcionalidades
@@ -29,7 +31,8 @@ Aplicação web full stack para organizar o rebanho e a rotina de uma propriedad
 | Banco de dados | Cloudflare D1 / SQLite |
 | Offline | Service Worker, Cache API, Web App Manifest e localStorage |
 | Autenticação | Web Crypto API, PBKDF2, sessões com cookies HttpOnly |
-| Testes | Node.js, assert, SQLite em memória e jsdom |
+| Testes | Python, pytest, testes HTTP, Node.js, SQLite em memória e jsdom |
+| Integração contínua | GitHub Actions, relatório JUnit |
 | Hospedagem | Cloudflare Pages |
 
 ## Destaques técnicos
@@ -52,7 +55,7 @@ Navegação inferior dividida em cinco áreas, formulários voltados às tarefas
 
 ## Executar localmente
 
-Requisitos: Node.js 24 e npm.
+Requisitos: Node.js 24, npm e Python 3.11+ para os testes.
 
 ```bash
 git clone https://github.com/souza1caue/rancho.git
@@ -62,6 +65,24 @@ npm run dev
 ```
 
 Para gerar a versão de produção, executar os testes e visualizar o PWA:
+
+Prepare o ambiente Python uma vez, sem precisar ativar o ambiente virtual:
+
+```bash
+python -m venv .venv
+```
+
+No Windows:
+
+```powershell
+.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+```
+
+No Linux/macOS:
+
+```bash
+.venv/bin/python -m pip install -r requirements-dev.txt
+```
 
 ```bash
 npm run build
@@ -80,13 +101,33 @@ shared/       Validação e mesclagem de dados
 migrations/   Estrutura do banco D1 / SQLite
 public/       Manifesto, ícones e configuração do PWA
 scripts/      Geração de ícones e cache offline
-tests/        Testes de domínio, API, sincronização e interface
+tests/python/ Testes de integração HTTP em Python/pytest
+tests/support/ Servidor local de testes e adaptador SQLite
+tests/        Testes JavaScript de domínio, sincronização e interface
 docs/         Documentação de operação e publicação
 ```
 
 ## Validação
 
 A suíte automatizada cobre ciclos reprodutivos, lançamentos de produção, histórico, autenticação, recuperação, isolamento entre contas, backups, sincronização, conflitos, uso offline e instalação simulada. Cadastro, login, gravação no D1 e controle de revisão também foram verificados no ambiente publicado.
+
+### Testes de API com Python e pytest
+
+Os testes Python enviam requisições HTTP ao handler JavaScript real da API. Cada teste inicia um servidor em loopback com porta dinâmica e SQLite em memória, criado com a migração do projeto. As respostas de negócio não são simuladas e não há acesso ao banco de produção.
+
+A suíte usa fixtures para servidor, clientes, contas e documentos; parametrização para entradas inválidas; e requisições concorrentes para verificar que dois aparelhos não sobrescrevem a mesma revisão. Também cobre autenticação, recuperação de senha, sessões, isolamento de contas, limite de tentativas, retenção de backups e tratamento de JSON inválido.
+
+```bash
+npm run test:python
+npm run test:python -- -m auth -v
+npm run test:python -- -m sync -v
+npm run test:python -- -m backup -v
+npm run test:js
+```
+
+`npm test` executa JavaScript e pytest. O script encontra automaticamente `.venv` no Windows/Linux; sem ambiente virtual, utiliza o Python instalado. O relatório JUnit é salvo em `reports/pytest.xml`.
+
+O GitHub Actions executa build e as duas suítes a cada push em `main` e pull request, e disponibiliza o relatório do pytest como artefato. Esses testes verificam contratos HTTP e SQL em ambiente local; a instalação em navegadores e as particularidades do runtime Cloudflare exigem validação complementar.
 
 ## Estado do projeto
 

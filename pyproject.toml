@@ -1,0 +1,10 @@
+[tool.pytest.ini_options]
+minversion = "9.2"
+testpaths = ["tests/python"]
+addopts = "-ra --strict-markers"
+markers = [
+  "api: testes de integração HTTP da API JavaScript com SQLite isolado",
+  "auth: autenticação, sessões e recuperação de acesso",
+  "sync: persistência e controle de concorrência",
+  "backup: versões e recuperação dos dados sincronizados",
+]
