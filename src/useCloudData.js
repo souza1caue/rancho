@@ -42,8 +42,11 @@ export default function useCloudData(initial){
     if(typeof fetch!=='function')return;
     let stopped=false;
     const check=async()=>{if(!navigator.onLine)return;try{const res=await fetch('/api/session',{cache:'no-store'});if(stopped)return;if(res.ok){const value=await res.json();if(accountRef.current?.id!==value.account.id)adopt(value.account);syncRef.current?.()}else if(res.status===401&&accountRef.current)setStatus('auth')}catch{}};
-    check();const online=()=>{check()},timer=setInterval(()=>syncRef.current?.(),30000);
-    window.addEventListener('online',online);return()=>{stopped=true;clearInterval(timer);window.removeEventListener('online',online)};
+    check();
+    const wake=()=>{if(document.visibilityState==='hidden')return;check();syncRef.current?.()};
+    const timer=setInterval(()=>{if(document.visibilityState!=='hidden')wake()},30000);
+    window.addEventListener('online',wake);window.addEventListener('focus',wake);window.addEventListener('pageshow',wake);document.addEventListener('visibilitychange',wake);
+    return()=>{stopped=true;clearInterval(timer);window.removeEventListener('online',wake);window.removeEventListener('focus',wake);window.removeEventListener('pageshow',wake);document.removeEventListener('visibilitychange',wake)};
   },[adopt]);
   useEffect(()=>{if(!account||status!=='pending')return;const timer=setTimeout(()=>syncRef.current?.(),retryDelay.current);return()=>clearTimeout(timer)},[db,account,status]);
   const authenticate=async(mode,fields)=>{const res=await fetch('/api/'+mode,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fields)});const value=await res.json();if(!res.ok)throw Error(value.error||'Não foi possível entrar.');adopt(value.account);setRecovery(value.recovery||'');await syncRef.current?.()};
