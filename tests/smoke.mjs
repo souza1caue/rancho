@@ -1,0 +1,34 @@
+import { JSDOM } from 'jsdom';
+import { readFileSync,readdirSync } from 'node:fs';
+import assert from 'node:assert/strict';
+const bundle=readdirSync('dist/assets').find(x=>x.endsWith('.js'));
+const dom=new JSDOM('<div id="root"></div>',{url:'http://localhost',runScripts:'dangerously',pretendToBeVisual:true,beforeParse(w){w.structuredClone=structuredClone;w.scrollTo=()=>{};w.Blob=Blob;w.URL.createObjectURL=blob=>{w.exportedBlob=blob;return 'blob:test'};w.URL.revokeObjectURL=()=>{};w.HTMLAnchorElement.prototype.click=function(){};w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};}});
+const w=dom.window;w.eval(readFileSync('dist/assets/'+bundle,'utf8'));
+const tick=()=>new Promise(r=>setTimeout(r,100));
+const click=text=>{const b=[...w.document.querySelectorAll('button')].find(b=>b.textContent.trim()===text);assert.ok(b,'Botão '+text);b.click()};
+const fill=(name,value)=>{w.document.querySelector('[name="'+name+'"]').value=value};
+await tick();assert.match(w.document.body.textContent,/Hoje na fazenda/);
+click('Cadastrar animal');await tick();fill('tag','099');fill('name','Teste');fill('birth','2026-10-01');fill('lot','Bezerreiro');fill('weight','45');w.document.querySelector('form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await tick();
+let saved=JSON.parse(w.localStorage.getItem('origem-beta'));assert.equal(saved.animals.length,9);assert.equal(saved.animals.at(-1).name,'Teste');
+click('Produção');await tick();click('Novo registro');await tick();fill('liters','20');w.document.querySelector('form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await tick();saved=JSON.parse(w.localStorage.getItem('origem-beta'));assert.equal(saved.milk.length,1);assert.equal(saved.milk[0].liters,'20');
+click('Início');await tick();assert.match(w.document.body.textContent,/20 L/);
+click('Cuidados');await tick();const before=saved.tasks.filter(x=>!x.done).length;w.document.querySelector('.check').click();await tick();saved=JSON.parse(w.localStorage.getItem('origem-beta'));assert.equal(saved.tasks.filter(x=>!x.done).length,before-1);
+click('Animais');await tick();click('Cria e recria');await tick();assert.equal(w.document.querySelector('.bottom-nav [aria-current]').textContent,'Animais');
+click('Reprodução');await tick();assert.match(w.document.querySelector('h1').textContent,/Reprodução/);
+click('Produção');await tick();click('Alimentação');await tick();assert.match(w.document.querySelector('h1').textContent,/Alimentação/);
+click('Cuidados');await tick();click('Saúde dos animais');await tick();assert.match(w.document.querySelector('h1').textContent,/Sanidade/);
+click('Gestão');await tick();click('Configurações e backup');await tick();assert.match(w.document.querySelector('h1').textContent,/Configurações/);assert.equal(w.document.querySelector('.page-top .primary'),null);assert.equal(w.document.querySelectorAll('.bottom-nav button').length,5);assert.equal(w.document.querySelector('aside'),null);
+const history=()=>w.document.querySelectorAll('.activity-tabs button')[1].click();
+const selectFilter=async(label,value)=>{const el=w.document.querySelector('[aria-label="'+label+'"]');assert.ok(el);el.value=value;el.dispatchEvent(new w.Event('change',{bubbles:true}));await tick()};
+click('Produção');await tick();history();await tick();assert.equal(w.document.querySelectorAll('.history-card .history-record').length,1);
+await selectFilter('Filtrar animal','002 · Estrela');assert.equal(w.document.querySelectorAll('.history-card .history-record').length,0);assert.match(w.document.querySelector('.history-card').textContent,/Nenhum registro com estes filtros/);
+click('Limpar filtros');await tick();assert.equal(w.document.querySelectorAll('.history-card .history-record').length,1);await selectFilter('Agrupar histórico por','animal');assert.match(w.document.querySelector('.group-heading').textContent,/Mimosa/);await selectFilter('Agrupar histórico por','date');assert.match(w.document.querySelector('.group-heading').textContent,/Hoje/);const record=w.document.querySelector('.history-record');assert.equal(record.open,false);record.querySelector('summary').click();assert.equal(record.open,true);click('Exportar CSV');await tick();const csv=await w.exportedBlob.text();assert.match(csv,/Mimosa/);assert.match(csv,/20/);assert.match(csv,/Destino do leite/);
+click('Cuidados');await tick();history();await tick();await selectFilter('Filtrar situação','done');assert.equal(w.document.querySelectorAll('.history-card .history-record').length,1);assert.match(w.document.querySelector('.history-card').textContent,/Conclusão/);click('Exportar CSV');await tick();assert.match(await w.exportedBlob.text(),/Concluída/);
+click('Animais');await tick();click('Reprodução');await tick();
+const reproductiveEvent=async(type,date,extra={})=>{click('Registrar');await tick();click('Novo registro');await tick();fill('type',type);fill('date',date);for(const [key,value] of Object.entries(extra))fill(key,value);w.document.querySelector('[name="confirmed"]').checked=true;w.document.querySelector('form.form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await tick()};
+await reproductiveEvent('Parto','2026-01-01');await reproductiveEvent('Inseminação artificial','2026-03-01');await reproductiveEvent('Diagnóstico de gestação','2026-04-01',{result:'Positivo'});
+click('Animais');await tick();w.document.querySelector('tbody tr').click();await tick();assert.match(w.document.querySelector('.cycle-status').textContent,/Lactação/);assert.match(w.document.querySelector('.cycle-status').textContent,/Gestante/);assert.match(w.document.querySelector('.cycle-panel').textContent,/Parto previsto/);assert.ok(!w.document.querySelector('.cycle-panel').textContent.includes('NaN'));
+const snapshot=w.document.querySelector('.cycle-panel form');snapshot.querySelector('[name="productive"]').value='Seca';snapshot.querySelector('[name="dryDate"]').value='2026-10-10';snapshot.dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await tick();assert.match(w.document.querySelector('.cycle-status').textContent,/Seca/);assert.match(w.document.querySelector('.cycle-status').textContent,/Gestante/);
+console.log('OK: navegação, cadastro, histórico, exportação, eventos reprodutivos e ciclo individual com gestação e lactação simultâneas.');dom.window.close();
+
+
