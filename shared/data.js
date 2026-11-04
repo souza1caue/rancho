@@ -13,6 +13,19 @@ export function mergeData(base,local,remote){
       if(value)merged[kind].push(value);
     }
   }
+  // Dois aparelhos podem criar IDs diferentes para a mesma ordenha offline.
+  const baseMilk=new Map((base?.milk||[]).map(r=>[r.id,r]));
+  const animalKey=r=>r.animalId||merged.animals.find(a=>a.tag+' · '+a.name===r.animal)?.id||r.animal;
+  const slot=r=>[animalKey(r),r.date,r.type,r.destination||''].join('|');
+  for(const l of local?.milk||[]){
+    if(equal(l,baseMilk.get(l.id)))continue;
+    for(const r of remote?.milk||[]){
+      if(l.id===r.id||equal(r,baseMilk.get(r.id))||slot(l)!==slot(r))continue;
+      if(!merged.milk.some(item=>item.id===l.id)||!merged.milk.some(item=>item.id===r.id))continue;
+      merged.milk=merged.milk.filter(item=>item.id!==r.id);
+      conflicts.push({kind:'milk',id:l.id,otherId:r.id,local:l,remote:r,reason:'A mesma ordenha foi registrada em dois aparelhos. Escolha uma medição para evitar duplicidade.'});
+    }
+  }
   return {data:merged,conflicts};
 }
 export function validateData(value){

@@ -49,8 +49,8 @@ export default function useCloudData(initial){
   const authenticate=async(mode,fields)=>{const res=await fetch('/api/'+mode,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fields)});const value=await res.json();if(!res.ok)throw Error(value.error||'Não foi possível entrar.');adopt(value.account);setRecovery(value.recovery||'');await syncRef.current?.()};
   const logout=async()=>{if(!navigator.onLine)throw Error('Conecte-se para encerrar a sessão com segurança.');const res=await fetch('/api/logout',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});if(!res.ok&&res.status!==401)throw Error('Não foi possível sair.');adopt(null);setRecovery('')};
   const resolve=(conflict,choice)=>{
-    const value=conflict[choice];setDb(data=>({...data,[conflict.kind]:[...data[conflict.kind].filter(r=>r.id!==conflict.id),...(value?[value]:[])]}));
-    const rest=conflictRef.current.filter(c=>!(c.id===conflict.id&&c.kind===conflict.kind));conflictRef.current=rest;persist(dataRef.current);setConflicts(rest);setStatus(rest.length?'conflict':'pending');
+    const value=conflict[choice];setDb(data=>({...data,[conflict.kind]:[...data[conflict.kind].filter(r=>r.id!==conflict.id&&r.id!==conflict.otherId),...(value?[value]:[])]}));
+    const rest=conflictRef.current.filter(c=>!(c.id===conflict.id&&c.kind===conflict.kind&&c.otherId===conflict.otherId));conflictRef.current=rest;persist(dataRef.current);setConflicts(rest);setStatus(rest.length?'conflict':'pending');
   };
   const importLocal=()=>{const local=normalize(read('origem-beta',emptyData()));const imported=mergeData(emptyData(),dataRef.current,local);if(imported.conflicts.length)throw Error('Há registros com o mesmo identificador. Use o backup para conferir os dados antes da importação.');const tags=imported.data.animals.map(a=>a.tag);if(new Set(tags).size!==tags.length)throw Error('Há animais diferentes com o mesmo brinco. Confira os cadastros antes de importar.');setDb(imported.data)};
   return {db,setDb,account,status,error,revision,recovery,clearRecovery:()=>setRecovery(''),authenticate,logout,sync,conflicts,resolve,importLocal};
