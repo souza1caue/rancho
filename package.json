@@ -1,13 +1,13 @@
 {
   "name": "rancho-gestao-leiteira",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build && node scripts/build-pwa.mjs",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "node tests/animal-cycle.mjs && node tests/history-groups.mjs && node tests/pwa.mjs && node tests/smoke.mjs"
+    "test": "node tests/animal-cycle.mjs && node tests/history-groups.mjs && node tests/pwa.mjs && node tests/cloud-data.mjs && node tests/api.mjs && node tests/smoke.mjs && node tests/cloud-ui.mjs"
   },
   "keywords": [],
   "type": "module",

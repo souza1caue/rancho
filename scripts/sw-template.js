@@ -16,6 +16,7 @@ self.addEventListener('message',event=>{
 self.addEventListener('fetch',event=>{
   const request=event.request,url=new URL(request.url);
   if(request.method!=='GET'||url.origin!==self.location.origin)return;
+  if(url.pathname.startsWith('/api/'))return;
   if(request.mode==='navigate'){
     event.respondWith(caches.open(CACHE_NAME).then(async cache=>(await cache.match('/index.html'))||fetch(request)));
     return;

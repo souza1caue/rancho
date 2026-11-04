@@ -2,5 +2,6 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "rancho-gestao-leiteira",
   "pages_build_output_dir": "./dist",
-  "compatibility_date": "2026-11-04"
+  "compatibility_date": "2026-11-04",
+  "d1_databases": [{"binding":"DB","database_name":"rancho-db","database_id":"68dd960d-6504-453b-99cb-921943f6f573","migrations_dir":"migrations"}]
 }

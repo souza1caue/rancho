@@ -1,98 +1,76 @@
-# Rancho — Gestão leiteira (beta)
+# Rancho — Gestão leiteira · beta 0.3
 
-Beta local para apresentação comercial, criada com React e Vite. A fazenda e os animais iniciais são fictícios.
+Sistema React/Vite instalável pelo navegador, hospedado em https://rancho-gestao-leiteira.pages.dev. Código privado: https://github.com/souza1caue/rancho.
 
-## Publicação
+## Usar
 
-### Versão 0.2 — aplicativo instalável
+A navegação inferior reúne Início, Animais, Produção, Cuidados e Gestão. As áreas de atividade possuem Registrar e Histórico, com filtros, agrupamento por dia/animal/tipo/categoria e exportação CSV.
 
-O Rancho possui manifesto, ícones para Android/iOS, modo standalone e service worker com cache da interface. Em Gestão → Configurações, a opção de instalação aparece nos navegadores que fornecem o evento de instalação; nos demais são exibidas instruções para instalação pelo menu. No iPhone/iPad, use Safari → Compartilhar → Adicionar à Tela de Início.
+- Animais: cadastro desde o nascimento, filiação, pesagens, categorias e ficha individual. Ciclos produtivo e reprodutivo são separados, permitindo gestação e lactação simultâneas.
+- Produção: uma única tela de ordenha lista as vacas em lactação. Campos vazios não criam medição; zero é uma medição de zero litros. Um animal não recebe dois lançamentos da mesma ordenha/data; corrija o registro no Histórico. Também há alimentação por lote.
+- Reprodução: cio, cobertura/inseminação, diagnóstico, secagem, parto e aborto. Um parto pode cadastrar uma cria e vinculá-la à mãe na mesma operação. Em parto gemelar, cadastre a segunda cria separadamente e vincule a mesma mãe.
+- Cuidados: agenda, sanidade e calendário de vacinas. Protocolos são cadastrados por responsável/UF, com idade inicial, sexo/categoria, reforços e revacinação. Apenas protocolos confirmados como validados geram lembretes. Não existe protocolo universal ativado automaticamente.
+- Gestão: financeiro, relatórios por período, conta, sincronização, backups e instalação do aplicativo.
+- Correções: no detalhe de um registro do Histórico, Corrigir registro mantém o identificador, animal e tipo e guarda a versão anterior com data e motivo. Para mudar a situação de um ciclo, use a ficha do animal.
 
-Para trabalhar offline, abra o endereço publicado com internet e aguarde “Preparado para uso sem internet”. A interface, os arquivos JavaScript, os ícones e os dados locais ficam disponíveis para as próximas aberturas sem rede. Fontes externas podem usar a fonte alternativa do dispositivo. O primeiro acesso precisa de internet e a disponibilidade depende da preservação do armazenamento/cache pelo navegador.
+## Conta e sincronização
 
-Atualizações são oferecidas por aviso; o usuário escolhe Atualizar agora após salvar suas alterações. A ação fica desabilitada com ficha/formulário aberto. O cache é versionado e não apaga localStorage, registros ou backups. Uma versão anterior da interface é mantida para abas abertas.
+Sem login, o modo local mantém os dados antigos do navegador, inclusive a demonstração fictícia. Nenhum registro local é enviado automaticamente para uma conta nova.
 
-A instalação não cria sincronização ou backup em nuvem. O aplicativo pode ter armazenamento separado em alguns dispositivos; confira os dados e use exportação/importação de backup se necessário. Não limpe dados do navegador/aplicativo sem antes exportar o backup.
+Em Gestão → Configurações e backup, crie uma conta com usuário e senha (mínimo 12 caracteres). Guarde o código de recuperação, mostrado na criação: ele permite redefinir a senha sem depender de email. O código é substituído quando usado. Entre na mesma conta nos demais aparelhos.
 
-`npm run build` gera a interface e o service worker; `npm test` verifica os ciclos, históricos, manifesto, ícones, cache offline e fluxos da aplicação. O modo de desenvolvimento não registra o service worker; para testar a instalação localmente, use `npm run build` e `npm run preview`. Os ícones podem ser regenerados no Windows com `powershell -File scripts/generate-icons.ps1`.
+Cada conta representa um conjunto independente de dados. Esta beta não possui convites, funcionários ou permissões por função. Não compartilhe credenciais para simular contas individuais.
 
-Código-fonte: `https://github.com/souza1caue/rancho` (repositório privado).
+Depois de entrar, Importar dados deste aparelho combina os dados do modo local com a conta, mediante confirmação. Dados fictícios ainda existentes também são importados; confira o cadastro antes. Conflitos de identificadores ou brincos são recusados nessa importação.
 
-Endereço publicado: https://rancho-gestao-leiteira.pages.dev
+As alterações são salvas localmente primeiro. Quando conectado, o aplicativo busca a versão remota e faz mesclagem por registro com uma base comum. Inclusões independentes são combinadas. Alterações diferentes no mesmo registro exigem escolha explícita entre aparelho e nuvem. O servidor usa revisão otimista para impedir sobrescritas concorrentes. A fila e a base de mesclagem são preservadas no armazenamento por conta. A consulta remota ocorre ao entrar, reconectar e periodicamente enquanto o app está aberto.
 
-Hospedagem: Cloudflare Pages, projeto `rancho-gestao-leiteira`, branch de produção `main`. Publicação por upload direto da pasta `dist`; o push no GitHub, sozinho, não publica automaticamente.
+Sessões usam cookie HttpOnly, Secure e SameSite=Strict. Senhas são protegidas por PBKDF2-SHA256 com salt e pepper do servidor. Há limitação de tentativas de autenticação e recuperação por IP. A chave AUTH_PEPPER está no Cloudflare, fora do Git. Não substitua essa chave em uma instalação existente: isso invalida a verificação das senhas existentes.
 
-Para atualizar, com GitHub CLI e Wrangler autenticados:
+A sessão dura 30 dias. Se expirar, os registros locais são preservados e o usuário entra novamente para sincronizar. Ao sair, o modo local é reaberto; os dados em cache da conta continuam neste aparelho para o próximo acesso. Proteja dispositivos compartilhados. O armazenamento local não é criptografado.
+
+## Backups
+
+Cada sincronização que altera dados cria um snapshot na mesma transação da gravação. São mantidas as últimas 30 versões por conta. Em Configurações, Ver backups automáticos permite baixar as versões como JSON; para restaurar, importe o JSON com a confirmação de substituição. Faça também backups manuais fora do dispositivo. A beta limita cada documento sincronizado a 1,5 MB e cada coleção a 20 mil registros.
+
+## Instalação e uso offline
+
+Em Configurações, o botão de instalação aparece quando o navegador oferece a instalação. Android/Chrome: menu → Instalar aplicativo. iPhone/iPad: Safari → Compartilhar → Adicionar à Tela de Início. Computador: instalação pelo Chrome/Edge.
+
+Abra conectado e aguarde Preparado para uso sem internet. Depois, a interface e os registros locais funcionam sem rede. Alterações da conta aguardam a próxima sincronização. Instalar, sozinho, não cria uma conta. Fontes externas podem usar a fonte alternativa do dispositivo. Não limpe o armazenamento antes de sincronizar e exportar um backup.
+
+Atualizações são oferecidas por aviso, com ação bloqueada enquanto uma ficha ou formulário estiver aberto. O cache de interface é versionado; a API nunca é armazenada pelo service worker. A atualização não apaga os dados do aplicativo.
+
+## Desenvolvimento e testes
 
 ```powershell
 npm ci
 npm run build
-node tests/animal-cycle.mjs
-node tests/history-groups.mjs
-node tests/smoke.mjs
+npm test
+npm run preview
+```
+
+O preview estático permite testar a interface e o PWA. Para testar a API, use Wrangler Pages dev com D1 local e um AUTH_PEPPER de teste, diferente da chave de produção. A migração SQL está em migrations/0001_cloud.sql. Os testes de API usam SQLite em memória, sem dados reais.
+
+Os testes abrangem ciclos, histórico, ícones/manifesto, cache offline, contas e sessões, recuperação, isolamento, CAS, backups, mesclagem/conflitos, ordenha em lote, parto vinculado, correções, calendário e fluxos da interface. A instalação visual em dispositivos e um teste acompanhado com o cliente continuam necessários antes da operação real.
+
+## Publicação
+
+Cloudflare Pages: rancho-gestao-leiteira, branch main. D1: rancho-db, binding DB. Aplicar novas migrações antes de publicar funções que dependam delas. Não recrie o banco nem a chave de autenticação ao atualizar.
+
+```powershell
+npm run build
+npm test
 git add .
 git commit -m "Atualiza Rancho"
 git push origin main
 npx wrangler@4.157.0 pages deploy dist --project-name rancho-gestao-leiteira --branch main
 ```
 
-O site hospedado continua usando armazenamento local: os registros do endereço localhost não são transferidos automaticamente para o novo domínio. Exporte um backup no endereço antigo e importe em Gestão → Configurações e backup no site publicado, caso queira levar os dados. Não há sincronização entre usuários ou dispositivos.
+O deploy compila a pasta functions e envia a interface dist. O push no GitHub sozinho não publica automaticamente. Os registros antigos do localhost pertencem a outro domínio: use exportação/importação para transportá-los.
 
-## Executar localmente
+## Referências de UX e manejo
 
-```powershell
-npm install
-npm run dev
-```
+Composição visual baseada na biblioteca local C:/Projetos_pessoais/ui-references e nos padrões de dashboard/cards/tabelas do shadcn/ui, commit 4aaea19d9cff3e0908e12a8c1d504b8c5ec34610. CSS e silhuetas próprias; ícones lucide-react. Os ícones instaláveis podem ser regenerados com scripts/generate-icons.ps1 no Windows.
 
-Abra a URL indicada pelo Vite. Para gerar a versão de produção: `npm run build`.
-
-## Apresentação sugerida
-
-1. Mostre o painel e a distribuição dos animais por fase.
-2. Abra Rebanho, busque Mimosa e consulte sua ficha.
-3. Cadastre uma bezerra com identificação, filiação, raça, nascimento e peso.
-4. Na ficha, registre colostragem ou pesagem e consulte a linha do tempo.
-5. Registre uma ordenha e veja o painel ser atualizado.
-6. Apresente os registros reprodutivos, tratamentos, alimentação e financeiro.
-7. Conclua um cuidado na Agenda.
-8. Baixe um backup completo em Configurações.
-
-## Escopo e limites
-
-### Consulta de atividades
-
-Leite, alimentação, agenda, sanidade, reprodução e financeiro possuem as abas Registrar e Histórico. Ao salvar um registro na área atual, o Histórico abre automaticamente. A consulta permite filtrar por intervalo de datas, tipo, busca textual e animal nas áreas com vínculo individual. A agenda também permite filtrar pendentes e concluídas e registra a data de conclusão das novas conclusões. Registros antigos sem essa data continuam disponíveis.
-
-A exportação CSV contém somente os resultados filtrados e seus campos de detalhe. Na agenda, os cuidados pendentes permanecem na aba Registrar; as tarefas concluídas continuam disponíveis no Histórico. Essa organização mantém o armazenamento local existente, sem migração ou remoção dos dados.
-
-O Histórico é agrupado por dia, com datas mais recentes primeiro e identificação de Hoje e Ontem. Os grupos podem ser recolhidos e cada atividade tem detalhes expansíveis. O primeiro grupo inicia aberto. Os cabeçalhos resumem litros e animais na produção, receitas/despesas/saldo no financeiro, pendentes/concluídas na agenda e quantidade fornecida na alimentação. A seleção Agrupar por permite alternar para animal, tipo, categoria financeira ou lote de alimentação, conforme a área. Os resumos são recalculados sobre os registros filtrados; o CSV exporta todas as atividades filtradas, inclusive as recolhidas.
-
-Dados salvos no localStorage do navegador; não há servidor, autenticação, sincronização, anexos ou usuários compartilhados. A exportação JSON permite backup e restauração, e o rebanho pode ser exportado em CSV. A agenda reúne tarefas manuais e lembretes calculados do ciclo. Eventos reprodutivos confirmados atualizam separadamente as situações produtiva e reprodutiva; as previsões não confirmam acontecimentos. Registros de parto não cadastram automaticamente a cria. Tratamentos não bloqueiam automaticamente a ordenha. Campos complementares podem ser consultados na ficha para registros vinculados ao animal. Financeiro e alimentação possuem histórico básico, sem integração contábil ou formulação de dieta.
-
-Antes de operação real: validar cadastro e regras de manejo com produtor e veterinário, implementar banco de dados, login e permissões, auditoria, rotinas de backup e recuperação, alertas de carência, acompanhamento de lactações e reprodução, controle de estoque e integrações.
-
-## Referência de UX
-
-### Ciclo individual
-
-A ficha de novilhas e vacas separa fase produtiva e situação reprodutiva. O modelo permite lactação e gestação simultâneas. O cadastro antigo é preservado, sem inventar datas ou assumir lactação para animais classificados apenas como gestantes.
-
-Registros em Reprodução atualizam o ciclo em ordem cronológica: inseminação/monta deixa o animal aguardando diagnóstico; diagnóstico positivo confirma gestação; negativo ou aborto encerra a previsão de gestação; secagem confirmada encerra a contagem de lactação na data real; parto confirmado inicia nova lactação e pós-parto. Eventos com datas futuras não representam fatos ocorridos. Um parto ainda não cadastra a cria automaticamente.
-
-Na ficha, Atualizar situação e referências do ciclo permite registrar a situação inicial ou corrigir referências conhecidas, salvando uma atualização no histórico reprodutivo. Intervalos de planejamento editáveis por animal: gestação 280 dias, período seco 60 dias, pré-parto 21 dias, espera pós-parto 45 dias e retorno para diagnóstico 30 dias. São referências iniciais, não prescrições; o veterinário deve validar os valores, o método de diagnóstico e a liberação reprodutiva.
-
-Agenda, Reprodução e Início mostram lembretes para os próximos 30 dias e previsões passadas a revisar. O usuário abre a ficha e registra/confirma o evento real; chegar à data prevista não confirma gestação, secagem, parto ou liberação. Lembretes são calculados ao abrir o aplicativo; não há notificações fora dele. O preparo pré-parto permanece como referência até revisão do ciclo ou confirmação do parto. A exportação do rebanho inclui as duas situações e as datas de referência.
-
-Biblioteca local `C:/Projetos_pessoais/ui-references`: composição do dashboard-01 e padrões de cards, tabelas e formulários do shadcn/ui, commit `4aaea19d9cff3e0908e12a8c1d504b8c5ec34610`. Implementação visual própria adaptada em CSS, sem incorporação do código dos componentes. Ícones lucide-react.
-## Navegação simplificada
-
-A barra inferior centralizada reúne cinco seções, tanto no computador quanto no celular:
-
-- Início: resumo do dia e atalhos para registrar leite, consultar animal e agendar cuidado.
-- Animais: todos os animais, cria e recria, reprodução.
-- Produção: leite e alimentação.
-- Cuidados: agenda e saúde dos animais.
-- Gestão: financeiro, configurações e backup.
-
-As páginas internas aparecem em abas no topo da seção. Os dados existentes permanecem no mesmo armazenamento local.
+Intervalos iniciais do ciclo são referências editáveis, não prescrições: gestação 280 dias, período seco 60, pré-parto 21, espera pós-parto 45 e retorno para diagnóstico 30. Devem ser validados pelo veterinário. Previsões não confirmam gestação, parto, secagem ou liberação reprodutiva. Tratamentos não bloqueiam automaticamente a ordenha. Não há formulação de dieta ou integração contábil. Relatórios usam medições reais e não estimam dias sem medição. Custos de alimentação não são lançados novamente no financeiro automaticamente.

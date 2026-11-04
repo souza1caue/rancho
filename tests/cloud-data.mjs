@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {emptyData,mergeData,validateData,equal} from '../shared/data.js';
+import {birthFromEvent,correctRecord} from '../src/record-operations.js';
+import {vaccinationSchedule} from '../src/vaccination.js';
+const base=emptyData();base.milk=[{id:'a',date:'2026-11-04',liters:10}];
+let local=structuredClone(base),remote=structuredClone(base);local.milk.push({id:'b',date:'2026-11-04',liters:5});remote.tasks.push({id:'c',date:'2026-11-04',title:'Vacina'});
+let merged=mergeData(base,local,remote);assert.equal(merged.conflicts.length,0);assert.equal(merged.data.milk.length,2);assert.equal(merged.data.tasks.length,1);
+local=structuredClone(base);remote=structuredClone(base);local.milk[0].liters=20;remote.milk[0].liters=30;merged=mergeData(base,local,remote);assert.equal(merged.conflicts.length,1);assert.equal(merged.data.milk[0].liters,20);assert.equal(merged.conflicts[0].remote.liters,30);
+assert.ok(equal({a:1,b:2},{b:2,a:1}));assert.ok(validateData(emptyData()));assert.equal(validateData({...emptyData(),milk:[{id:'a'},{id:'a'}]}),false);
+const event={id:'birth',type:'Parto',date:'2026-10-01',calfRegister:'sim',calfTag:'123',calfName:'Cria',calfWeight:'35',animal:'001 · Mãe',animalId:'mother'};
+const calf=birthFromEvent(event,[]);assert.equal(calf.motherId,'mother');assert.equal(calf.birthEventId,'birth');assert.equal(calf.birth,event.date);assert.throws(()=>birthFromEvent(event,[{tag:'123'}]));assert.equal(birthFromEvent({...event,type:'Cio'},[]),null);
+const corrected=correctRecord({id:'a',liters:10},{liters:12},'Erro de digitação');assert.equal(corrected.liters,12);assert.equal(corrected.corrections[0].before.liters,10);assert.throws(()=>correctRecord({}, {},''));
+const a={id:'animal',name:'Cria',tag:'123',birth:'2026-01-01',sex:'Fêmea',stage:'Bezerra'},protocol={id:'p',name:'Protocolo teste',approved:true,startAgeDays:90,initialDoses:2,boosterDays:30,repeatDays:365};
+let due=vaccinationSchedule([a],[protocol],[],'2026-03-01');assert.equal(due[0].date,'2026-04-01');
+due=vaccinationSchedule([a],[protocol],[{id:'v',protocolId:'p',animalId:a.id,type:'Vacinação',date:'2026-04-05'}],'2026-04-06');assert.equal(due[0].date,'2026-05-05');
+assert.equal(vaccinationSchedule([a],[{...protocol,approved:false}],[],'2026-04-06').length,0);assert.equal(vaccinationSchedule([{...a,stage:'Vendido'}],[protocol],[],'2026-04-06').length,0);
+console.log('OK: sincronização de inclusões independentes, conflitos preservados, parto vinculado, correções auditadas e calendário sanitário configurável.');
