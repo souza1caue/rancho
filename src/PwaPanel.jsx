@@ -5,7 +5,7 @@ export function PwaNotice({pwa,editing}){
   if(!pwa.waiting&&!pwa.error&&pwa.online)return null;
   return <div className="pwa-notices" aria-live="polite">
     {!pwa.online&&<div className="pwa-notice"><WifiOff size={18}/><span><strong>Você está sem internet.</strong> Os registros continuam sendo salvos neste aparelho.{!pwa.offlineReady?' Reabra com internet para preparar o acesso offline.':''}</span></div>}
-    {pwa.waiting&&<div className="pwa-notice"><RefreshCw size={18}/><span><strong>Nova versão disponível.</strong> {editing?'Feche a ficha ou o formulário antes de atualizar.':'Salve o que estiver editando antes de atualizar.'}</span><button disabled={editing} className="secondary" onClick={pwa.update}>Atualizar agora</button></div>}
+    {pwa.waiting&&<div className="pwa-notice"><RefreshCw size={18}/><span><strong>Atualização pronta.</strong> {editing?'Feche a ficha antes de atualizar.':'Atualize o Rancho para carregar a versão nova.'}</span><button aria-label="Atualizar aplicativo" disabled={editing} className="secondary" onClick={pwa.update}>Atualizar</button></div>}
     {pwa.error&&<div className="pwa-notice">{pwa.error}</div>}
   </div>;
 }

@@ -81,3 +81,37 @@
 .dashboard-milk-panel .dashboard-record-cta{margin-top:4px}
 .dashboard-health-panel .dashboard-health-meter{width:80px;height:80px}
 @media(max-width:680px){.dashboard-milk-panel .milk-trend svg{height:96px}}
+/* Hierarquia e respiro da tela inicial em celular */
+@media(max-width:680px){
+  .pwa-notices{margin-bottom:12px}
+  .pwa-notice{gap:8px;padding:10px 11px;font-size:10px;line-height:1.45}
+  .pwa-notice button{white-space:nowrap;padding:8px 10px}
+  main:has(.dashboard-shell) .page-top .primary{display:none}
+  main:has(.dashboard-shell) .page-top{margin-bottom:14px}
+  main:has(.dashboard-shell) .page-top h1{margin-top:7px;margin-bottom:7px}
+  main:has(.dashboard-shell) .page-top p{font-size:10px}
+  .dashboard-context{margin:0 0 10px!important;padding:9px 11px;border:1px solid #e6ece5;border-radius:12px;background:#fff}
+  .dashboard-context>div>p:first-child{font-size:12px}
+  .dashboard-context>div>p:last-child{font-size:10px}
+  .dashboard-summary-grid{gap:10px}
+  .dashboard-summary-grid>.dashboard-panel{padding:14px}
+  .dashboard-milk-panel .milk-trend{margin-top:6px}
+  .dashboard-milk-panel .milk-trend svg{height:68px}
+  .dashboard-milk-panel .dashboard-milk-summary{margin-top:9px}
+  .dashboard-milk-panel .dashboard-milk-summary>div>strong{font-size:30px}
+  .dashboard-milk-panel h2,.dashboard-health-panel h2{font-size:15px}
+  .dashboard-health-panel .dashboard-health-meter{width:66px;height:66px}
+  .dashboard-health-panel>div:nth-child(2){gap:12px}
+  .dashboard-health-panel>div:nth-child(2) p{font-size:10px;line-height:1.5}
+  .dashboard-health-panel>div:nth-child(2) p:last-child{font-size:9px}
+  .dashboard-health-panel .dashboard-health-link{margin-top:9px;padding-top:9px;font-size:11px}
+  .dashboard-shortcuts{margin-top:16px!important}
+  .dashboard-shortcuts-grid{gap:8px}
+  .dashboard-shortcut{min-height:66px;padding:8px 10px;gap:8px}
+  .dashboard-shortcut .shortcut-icon{width:32px;height:32px}
+  .dashboard-shortcut .shortcut-copy strong{font-size:11px}
+  .dashboard-shortcut .shortcut-copy small{font-size:9px;margin-top:2px}
+  .dashboard-shell>section:last-child{margin-top:16px!important}
+  .dashboard-task{gap:9px;padding:12px 14px}
+}
+@media(max-width:680px){.dashboard-health-panel .dashboard-health-link{margin-top:4px;padding-top:6px}}
