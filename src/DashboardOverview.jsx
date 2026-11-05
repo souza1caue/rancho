@@ -62,11 +62,6 @@ export default function DashboardOverview({db,today,total,onNavigate,onRecord,on
     {title:'Métricas',detail:'Relatórios da fazenda',icon:<BarChart3 size={21}/>,page:'Relatórios'},
   ];
   return <section className="dashboard-shell" aria-label="Painel principal do Rancho">
-    <div className="dashboard-context mb-5 flex flex-wrap items-center justify-between gap-3">
-      <div><p className="text-sm font-semibold text-forest">Resumo de hoje</p><p className="mt-1 text-xs text-gray-500">Produção, saúde e cuidados do rebanho.</p></div>
-      <span className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-white px-3 py-2 text-xs font-semibold text-forest shadow-sm"><span className="h-2 w-2 rounded-full bg-field"/>Fazenda ativa</span>
-    </div>
-
     <div className="dashboard-summary-grid">
       <article className="dashboard-panel dashboard-milk-panel overflow-hidden p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-gray-500">Leite de hoje</p><h2 className="mt-1 text-xl font-bold text-forest">Produção de leite</h2><p className="mt-1 text-xs text-gray-500">Total registrado por animal.</p></div><span className="grid h-10 w-10 place-items-center rounded-xl bg-green-50 text-field"><Milk size={21}/></span></div>
