@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { effectiveMilkRecords, milkLiters, milkRecordsForDate } from '../shared/milk.js';
 import {groupHistory, summarizeHistory} from '../src/history-groups.js';
 
 const records=[
@@ -16,6 +17,16 @@ assert.equal(groupHistory(records,'animal')[0].items.length,2);
 assert.equal(groupHistory(records,'type').length,2);
 assert.equal(JSON.stringify(records),original);
 const finance=[{date:'2026-11-04',category:'Leite',type:'Receita',value:'120.50'},{date:'2026-11-04',category:'Alimentação',type:'Despesa',value:'35.25'}];
+const milk=[
+  {id:'legacy-1',date:'2026-11-04',animal:'001 · Vaca',liters:'18'},
+  {id:'legacy-2',date:'2026-11-04',animal:'002 · Novilha',liters:'12'},
+  {id:'herd-am',date:'2026-11-04',scope:'Rebanho',type:'Manhã',liters:'100'},
+  {id:'herd-pm',date:'2026-11-04',scope:'Rebanho',type:'Tarde',liters:'90'},
+  {id:'legacy-old',date:'2026-11-03',animal:'001 · Vaca',liters:'20'},
+];
+assert.equal(milkRecordsForDate(milk,'2026-11-04').length,2);
+assert.equal(milkLiters(milkRecordsForDate(milk,'2026-11-04')),190);
+assert.deepEqual(effectiveMilkRecords(milk).map(row=>row.id).sort(),['herd-am','herd-pm','legacy-old']);
 assert.equal(groupHistory(finance,'category').length,2);
 const total=summarizeHistory(finance);assert.equal(total.income-total.expenses,85.25);
 assert.equal(groupHistory([{date:'2026-11-04'}],'animal')[0].key,'Rebanho / sem animal');

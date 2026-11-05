@@ -2,7 +2,7 @@ import React from 'react';
 import {CalendarDays,HeartPulse,Milk,Plus,Wallet,Sprout,Dna,Beef} from 'lucide-react';
 
 const actions=[
-  {page:'Produção de leite',label:'Leite',help:'Lançar a ordenha de várias vacas',icon:Milk},
+  {page:'Produção de leite',label:'Leite',help:'Registrar o volume total da ordenha',icon:Milk},
   {page:'Agenda',label:'Cuidado ou tarefa',help:'Agendar uma atividade para o rebanho',icon:CalendarDays},
   {page:'Sanidade',label:'Saúde ou vacina',help:'Registrar aplicação, exame ou tratamento',icon:HeartPulse},
   {page:'Reprodução',label:'Reprodução',help:'Registrar cio, inseminação, diagnóstico ou parto',icon:Dna},

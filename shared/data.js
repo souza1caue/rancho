@@ -1,3 +1,5 @@
+import {isHerdMilkRecord} from './milk.js';
+
 export const collections=['animals','milk','health','reproduction','feeding','finance','tasks','protocols'];
 export const emptyData=()=>Object.fromEntries(collections.map(k=>[k,[]]));
 export const normalize=data=>({...emptyData(),...data});
@@ -16,7 +18,7 @@ export function mergeData(base,local,remote){
   // Dois aparelhos podem criar IDs diferentes para a mesma ordenha offline.
   const baseMilk=new Map((base?.milk||[]).map(r=>[r.id,r]));
   const animalKey=r=>r.animalId||merged.animals.find(a=>a.tag+' · '+a.name===r.animal)?.id||r.animal;
-  const slot=r=>[animalKey(r),r.date,r.type,r.destination||''].join('|');
+  const slot=r=>isHerdMilkRecord(r)?['rebanho',r.date,r.type].join('|'):[animalKey(r),r.date,r.type,r.destination||''].join('|');
   for(const l of local?.milk||[]){
     if(equal(l,baseMilk.get(l.id)))continue;
     for(const r of remote?.milk||[]){

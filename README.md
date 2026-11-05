@@ -12,7 +12,7 @@ Aplicação web full stack para organizar o rebanho e a rotina de uma propriedad
 ## Funcionalidades
 
 - **Rebanho:** identificação, filiação, pesagens e histórico de cada animal desde o nascimento.
-- **Produção:** lançamento de ordenha de vários animais em uma única tela, com identificação do destino do leite.
+- **Produção:** registro do volume total de cada ordenha do rebanho, com data, turno e destino do leite. Registros antigos por animal continuam disponíveis no histórico.
 - **Reprodução:** acompanhamento de gestação e lactação simultâneas, previsões de manejo e parto vinculado ao cadastro da cria.
 - **Cuidados:** agenda, tratamentos e calendário de vacinação configurável por protocolo.
 - **Gestão:** receitas, despesas, relatórios por período e exportação de dados em CSV e JSON.

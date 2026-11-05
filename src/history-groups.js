@@ -1,7 +1,7 @@
 export function groupHistory(records, by = 'date') {
   const groups = new Map();
   for (const record of records) {
-    const key = record[by] || (by === 'animal' ? 'Rebanho / sem animal' : by === 'category' ? 'Sem categoria' : by === 'lot' ? 'Sem lote' : 'Outros');
+    const key = record[by] || (by === 'animal' && record.scope === 'Rebanho' ? 'Rebanho' : by === 'animal' ? 'Rebanho / sem animal' : by === 'category' ? 'Sem categoria' : by === 'lot' ? 'Sem lote' : 'Outros');
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(record);
   }

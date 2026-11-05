@@ -1,9 +1,29 @@
 import React,{useState} from 'react';
-import {getCycle,animalLabel} from './animal-cycle.js';
+import {isHerdMilkRecord} from '../shared/milk.js';
+
 export default function MilkBatch({db,today,onSave,onCancel}){
-  const [date,setDate]=useState(today),[shift,setShift]=useState('Manhã'),[values,setValues]=useState({}),[error,setError]=useState('');
-  const animals=db.animals.filter(a=>{const c=getCycle(a,db.reproduction,date);return a.birth<=date&&a.sex!=='Macho'&&!['Vendido','Óbito'].includes(a.stage)&&c.productive==='Lactação'&&(!c.lastCalving||c.lastCalving<=date)});
-  const existing=a=>db.milk.some(r=>(r.animalId===a.id||r.animal===animalLabel(a))&&r.date===date&&r.type===shift);
-  const selected=animals.filter(a=>!existing(a)&&values[a.id]!==undefined&&values[a.id]!=='');
-  return <form className="form milk-batch" onSubmit={e=>{e.preventDefault();if(!selected.length){setError('Informe a quantidade de pelo menos um animal.');return}const f=Object.fromEntries(new FormData(e.target));const rows=selected.map(a=>({id:crypto.randomUUID(),animalId:a.id,animal:animalLabel(a),date,type:shift,liters:values[a.id],destination:f.destination,notes:f.notes}));onSave(rows)}}><p className="cycle-note">Preencha somente as vacas medidas nesta ordenha. Campo vazio significa sem medição; zero significa produção medida de 0 litros.</p><div className="form-grid"><label>Data<input type="date" value={date} max={today} required onChange={e=>{setDate(e.target.value);setValues({})}}/></label><label>Ordenha<select value={shift} onChange={e=>{setShift(e.target.value);setValues({})}}>{['Manhã','Tarde','Noite'].map(v=><option key={v}>{v}</option>)}</select></label><label>Destino<select name="destination">{['Tanque','Descarte','Alimentação de bezerros'].map(v=><option key={v}>{v}</option>)}</select></label><label>Observações<input name="notes"/></label></div><div className="batch-animals">{animals.map(a=><label key={a.id}><span><strong>{a.name}</strong><small>Brinco {a.tag}{existing(a)?' · Já registrada. Corrija no Histórico.':''}</small></span><input type="number" min="0" max="200" step="0.1" disabled={existing(a)} aria-label={'Litros de '+a.name} placeholder="Litros" value={values[a.id]??''} onChange={e=>setValues(v=>({...v,[a.id]:e.target.value}))}/></label>)}</div>{!animals.length&&<p>Nenhuma vaca com lactação informada para esta data. Atualize o ciclo na ficha do animal.</p>}<p className="batch-total">{selected.length} animais · {selected.reduce((s,a)=>s+Number(values[a.id]||0),0).toLocaleString('pt-BR')} litros nesta inclusão</p>{error&&<p className="filter-error" role="alert">{error}</p>}<div className="form-actions"><button type="button" className="secondary" onClick={onCancel}>Cancelar</button><button className="primary" disabled={!animals.length}>Salvar ordenha</button></div></form>;
+  const [date,setDate]=useState(today);
+  const [shift,setShift]=useState('Manhã');
+  const [error,setError]=useState('');
+  const existing=db.milk.find(record=>isHerdMilkRecord(record)&&record.date===date&&record.type===shift);
+  return <form className="form milk-batch" onSubmit={event=>{
+    event.preventDefault();
+    if(existing){setError('Já existe um total para esta ordenha. Corrija pelo Histórico.');return}
+    const form=Object.fromEntries(new FormData(event.currentTarget));
+    const liters=Number(form.liters);
+    if(!Number.isFinite(liters)||liters<0){setError('Informe um volume total válido.');return}
+    onSave({id:crypto.randomUUID(),scope:'Rebanho',date,type:shift,liters:String(liters),destination:form.destination,notes:form.notes});
+  }}>
+    <p className="cycle-note">Registre uma única vez o volume total coletado nesta ordenha, somando o leite do rebanho.</p>
+    <div className="form-grid">
+      <label>Data<input type="date" name="date" value={date} max={today} required onChange={event=>setDate(event.target.value)}/></label>
+      <label>Ordenha<select value={shift} onChange={event=>setShift(event.target.value)}>{['Manhã','Tarde','Noite'].map(value=><option key={value}>{value}</option>)}</select></label>
+      <label className="wide">Volume total da ordenha (litros)<input name="liters" type="number" min="0" step="0.1" required placeholder="Ex.: 185,5"/></label>
+      <label>Destino do leite<select name="destination">{['Tanque','Descarte','Alimentação de bezerros'].map(value=><option key={value}>{value}</option>)}</select></label>
+      <label>Observações<input name="notes" placeholder="Opcional"/></label>
+    </div>
+    {existing&&<p className="filter-error" role="status">Já existe um total para esta ordenha. Corrija o registro pelo Histórico.</p>}
+    {error&&<p className="filter-error" role="alert">{error}</p>}
+    <div className="form-actions"><button type="button" className="secondary" onClick={onCancel}>Cancelar</button><button className="primary" disabled={Boolean(existing)}>Salvar total da ordenha</button></div>
+  </form>;
 }

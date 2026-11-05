@@ -2,6 +2,7 @@ import React from 'react';
 import {Activity,ArrowRight,BarChart3,CalendarDays,Check,ChevronRight,HeartPulse,Milk,Sprout,TrendingDown,TrendingUp} from 'lucide-react';
 import AnimalIcon from './AnimalIcon.jsx';
 import {animalLabel} from './animal-cycle.js';
+import {milkLiters,milkRecordsForDate} from '../shared/milk.js';
 
 const localDate=value=>value?new Date(value+'T12:00:00').toLocaleDateString('pt-BR'):'Data não informada';
 const number=value=>Number(value||0).toLocaleString('pt-BR',{maximumFractionDigits:1});
@@ -51,7 +52,7 @@ export default function DashboardOverview({db,today,total,onNavigate,onRecord,on
   const animals=db.animals.filter(activeAnimal);
   const series=Array.from({length:7},(_,index)=>{
     const date=new Date(today+'T12:00:00');date.setDate(date.getDate()-(6-index));const iso=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-    return {date:iso,label:date.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.',''),value:db.milk.filter(record=>record.date===iso).reduce((sum,record)=>sum+Number(record.liters||0),0)};
+    return {date:iso,label:date.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.',''),value:milkLiters(milkRecordsForDate(db.milk,iso))};
   });
   const previous=series.at(-2)?.value||0,change=previous>0?Math.round((total-previous)/previous*100):null;
   const tasks=db.tasks.filter(task=>!task.done).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
@@ -64,8 +65,8 @@ export default function DashboardOverview({db,today,total,onNavigate,onRecord,on
   return <section className="dashboard-shell" aria-label="Painel principal do Rancho">
     <div className="dashboard-summary-grid">
       <article className="dashboard-panel dashboard-milk-panel overflow-hidden p-5 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-gray-500">Leite de hoje</p><h2 className="mt-1 text-xl font-bold text-forest">Produção de leite</h2><p className="mt-1 text-xs text-gray-500">Total registrado por animal.</p></div><span className="grid h-10 w-10 place-items-center rounded-xl bg-green-50 text-field"><Milk size={21}/></span></div>
-        <div className="dashboard-milk-summary mt-5 flex flex-wrap items-end justify-between gap-3"><div><strong className="font-metric text-4xl font-extrabold tracking-tight text-forest">{number(total)}<span className="ml-2 text-xl font-bold">L</span></strong><p className="mt-1 text-xs text-gray-500">{db.milk.filter(record=>record.date===today).length} ordenhas registradas</p></div>{change!==null&&<span className={`mb-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${change>=0?'bg-green-50 text-forest':'bg-amber-50 text-amber-800'}`}>{change>=0?<TrendingUp size={14}/>:<TrendingDown size={14}/>} {Math.abs(change)}% vs. ontem</span>}</div>
+        <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-gray-500">Leite de hoje</p><h2 className="mt-1 text-xl font-bold text-forest">Produção de leite</h2><p className="mt-1 text-xs text-gray-500">Volume total do rebanho.</p></div><span className="grid h-10 w-10 place-items-center rounded-xl bg-green-50 text-field"><Milk size={21}/></span></div>
+        <div className="dashboard-milk-summary mt-5 flex flex-wrap items-end justify-between gap-3"><div><strong className="font-metric text-4xl font-extrabold tracking-tight text-forest">{number(total)}<span className="ml-2 text-xl font-bold">L</span></strong><p className="mt-1 text-xs text-gray-500">{milkRecordsForDate(db.milk,today).length} ordenhas registradas</p></div>{change!==null&&<span className={`mb-1 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${change>=0?'bg-green-50 text-forest':'bg-amber-50 text-amber-800'}`}>{change>=0?<TrendingUp size={14}/>:<TrendingDown size={14}/>} {Math.abs(change)}% vs. ontem</span>}</div>
         <MilkTrend series={series}/>
         <button className="dashboard-record-cta" onClick={onRecord}><Milk size={16}/>Registrar ordenha <ArrowRight size={15}/></button>
       </article>
